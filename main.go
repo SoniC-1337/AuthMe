@@ -12,14 +12,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// User represents the users table
 type User struct {
 	ID    int    `json:"id" db:"id"`
 	UID   string `json:"uid" db:"uid"`
 	Reset bool   `json:"reset" db:"reset"`
 }
 
-// License represents the licenses table
 type License struct {
 	ID         int       `json:"id" db:"id"`
 	License    string    `json:"license" db:"license"`
@@ -28,7 +26,6 @@ type License struct {
 	UserID     int       `json:"user_id" db:"user_id"`
 }
 
-// Product represents the products table
 type Product struct {
 	ID        int    `json:"id" db:"id"`
 	Name      string `json:"name" db:"name"`
@@ -60,6 +57,7 @@ func main() {
 	router := gin.Default()
 	router.POST("/login", authenticate(db))
 	router.GET("/download", downloadHandler)
+	router.POST("/register", registerHandler(db))
 
 	err = router.Run(":8080")
 	if err != nil {
@@ -97,11 +95,19 @@ func authenticate(db *sql.DB) gin.HandlerFunc {
 
 		err = db.QueryRow("SELECT p.* FROM products p JOIN licenses l ON l.id = p.license_id JOIN users u ON l.user_id = u.id WHERE u.uid = ? AND l.expiration >= NOW();", user.UID).Scan(&product.ID, &product.Name, &product.LicenseID)
 		if err != nil {
-			c.JSON(500, gin.H{
-				"status": "error",
-				"error":  "Failed to query user",
-			})
-			return
+			if err == sql.ErrNoRows {
+				c.JSON(404, gin.H{
+					"status": "error",
+					"error":  "UID not found",
+				})
+				return
+			} else {
+				c.JSON(403, gin.H{
+					"status": "error",
+					"error":  "License expired",
+				})
+				return
+			}
 		}
 
 		c.JSON(200, gin.H{
@@ -112,6 +118,62 @@ func authenticate(db *sql.DB) gin.HandlerFunc {
 				"licenseID": product.LicenseID,
 			},
 		})
+	}
+}
+
+func registerHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var user User
+		err := c.ShouldBind(&user)
+		if err != nil {
+			c.JSON(500, gin.H{
+				"status": "error",
+				"error":  "Failed to bind form data",
+			})
+			return
+		}
+
+		var existingUser User
+		err = db.QueryRow("SELECT * FROM users WHERE uid = ?;", user.UID).Scan(&existingUser.ID, &existingUser.UID, &existingUser.Reset)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				c.JSON(500, gin.H{
+					"status": "error",
+					"error":  "Failed to query database",
+				})
+				return
+			}
+		}
+
+		if existingUser.ID == 0 {
+			res, err := db.Exec("INSERT INTO users (uid) VALUES (?);", user.UID)
+			if err != nil {
+				c.JSON(500, gin.H{
+					"status": "error",
+					"error":  "Failed to create new user",
+				})
+				return
+			}
+			userID, err := res.LastInsertId()
+			if err != nil {
+				c.JSON(500, gin.H{
+					"status": "error",
+					"error":  "Failed to create new user",
+				})
+				return
+			}
+			c.JSON(200, gin.H{
+				"status": "success",
+				"user": gin.H{
+					"id":  userID,
+					"uid": user.UID,
+				},
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"error": "The UID already exists",
+			})
+		}
 	}
 }
 

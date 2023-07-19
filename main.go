@@ -6,16 +6,33 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"golang.org/x/crypto/bcrypt"
 )
 
+// User represents the users table
 type User struct {
-	License string  `form:"license" binding:"required"`
-	Hwid    string  `form:"hwid" binding:"required"`
-	Product *string `form:"product"`
+	ID    int    `json:"id" db:"id"`
+	UID   string `json:"uid" db:"uid"`
+	Reset bool   `json:"reset" db:"reset"`
+}
+
+// License represents the licenses table
+type License struct {
+	ID         int       `json:"id" db:"id"`
+	License    string    `json:"license" db:"license"`
+	Redeemed   bool      `json:"redeemed" db:"redeemed"`
+	Expiration time.Time `json:"expiration" db:"expiration"`
+	UserID     int       `json:"user_id" db:"user_id"`
+}
+
+// Product represents the products table
+type Product struct {
+	ID        int    `json:"id" db:"id"`
+	Name      string `json:"name" db:"name"`
+	LicenseID int    `json:"license_id" db:"license_id"`
 }
 
 type DBConfig struct {
@@ -41,7 +58,7 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.POST("/login", login(db))
+	router.POST("/login", authenticate(db))
 	router.GET("/download", downloadHandler)
 
 	err = router.Run(":8080")
@@ -65,50 +82,35 @@ func connectToDB(config DBConfig) (*sql.DB, error) {
 	return db, nil
 }
 
-func login(db *sql.DB) gin.HandlerFunc {
+func authenticate(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user User
+		var product Product
 		err := c.ShouldBind(&user)
 		if err != nil {
-			c.JSON(400, gin.H{
-				"status": "error",
-				"error":  err.Error(),
-			})
-			return
-		}
-
-		// Fetch user information from the database
-		query := "SELECT hwid FROM users WHERE license = ?"
-		var hwid string
-		err = db.QueryRow(query, user.License).Scan(&hwid)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				c.JSON(401, gin.H{
-					"status": "failed",
-					"error":  "User not found",
-				})
-				return
-			}
-			log.Println(err)
 			c.JSON(500, gin.H{
 				"status": "error",
-				"error":  "Database error",
+				"error":  "Failed to bind form data",
 			})
 			return
 		}
 
-		// Compare the hashed password
-		err = bcrypt.CompareHashAndPassword([]byte(hwid), []byte(user.Hwid))
+		err = db.QueryRow("SELECT p.* FROM products p JOIN licenses l ON l.id = p.license_id JOIN users u ON l.user_id = u.id WHERE u.uid = ? AND l.expiration >= NOW();", user.UID).Scan(&product.ID, &product.Name, &product.LicenseID)
 		if err != nil {
-			c.JSON(401, gin.H{
-				"status": "failed",
-				"error":  "Invalid credentials",
+			c.JSON(500, gin.H{
+				"status": "error",
+				"error":  "Failed to query user",
 			})
 			return
 		}
 
 		c.JSON(200, gin.H{
 			"status": "success",
+			"product": gin.H{
+				"id":        product.ID,
+				"name":      product.Name,
+				"licenseID": product.LicenseID,
+			},
 		})
 	}
 }

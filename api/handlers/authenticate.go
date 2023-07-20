@@ -14,10 +14,10 @@ type Product struct {
 
 func Authenticate(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var user User
-		var product Product
+		var user models.User
+		var product models.Product
 
-		if err := c.ShouldBindJSON(&user); err != nil {
+		if err := c.ShouldBind(&user); err != nil {
 			c.JSON(400, gin.H{
 				"status": "error",
 				"error":  "Failed to bind JSON data",

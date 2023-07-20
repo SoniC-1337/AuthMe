@@ -4,12 +4,14 @@ import (
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/Xoro-1337/AuthMe/api/models"
 )
 
 func RegisterHandler(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var user User
-		if err := c.ShouldBindJSON(&user); err != nil {
+		var user models.User
+		if err := c.ShouldBind(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "error",
 				"error":  "Failed to bind JSON data",
@@ -17,7 +19,7 @@ func RegisterHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		var existingUser User
+		var existingUser models.User
 		stmt := "SELECT * FROM users WHERE uid = ?;"
 		err := db.QueryRow(stmt, user.UID).Scan(&existingUser.UID)
 		if err == sql.ErrNoRows {

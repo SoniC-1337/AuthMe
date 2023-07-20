@@ -1,4 +1,4 @@
-module github.com/Xoro-1337/AuthMe
+module github.com/Xoro-1337/AuthMe/server
 
 go 1.19
 

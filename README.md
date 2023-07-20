@@ -78,7 +78,3 @@ AuthMe is licensed under the [MIT License](https://github.com/Xoro-1337/AuthMe/b
 
 We would like to extend our gratitude to all the contributors and supporters of AuthMe.
 
----
-
-**Note:** This README.md is a template and should be customized for your specific AuthMe project. Feel free to add more sections, badges, or elaborate on the features and implementation details. Happy coding! 🚀
-

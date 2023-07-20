@@ -25,6 +25,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(middleware.CORS())
+	// gin.SetMode(gin.ReleaseMode)
 
 	router.POST("/login", handlers.Authenticate(db))
 	router.GET("/download", handlers.DownloadHandler)

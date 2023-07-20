@@ -41,17 +41,18 @@ Follow these steps to get AuthMe up and running in your project:
 
 ## Supported Clients
 
-- [x] Python
-- [x] JavaScript/Node.js
-- [x] Java
-- [x] Ruby
-- [x] C#
+- [x] C/C++ (Coming Soon)
+- [x] Python (Coming Soon)
+- [x] JavaScript/Node.js (Coming Soon)
+- [x] Java (Coming Soon)
+- [x] Ruby (Coming Soon)
+- [x] C# (Coming Soon)
 
 Choose the client that best suits your programming language, or contribute to the community by adding support for more languages!
 
 ## Documentation
 
-For detailed usage instructions, configuration options, and API reference, check out our [documentation](https://github.com/your_username/AuthMe/wiki).
+For detailed usage instructions, configuration options, and API reference, check out our [documentation](https://github.com/Xoro-1337/AuthMe/wiki).
 
 ## Contributing
 
@@ -67,11 +68,11 @@ We welcome contributions from the community! To contribute to AuthMe, follow the
 
 ## Reporting Issues
 
-If you encounter any problems with AuthMe or would like to suggest enhancements, please [open an issue](https://github.com/your_username/AuthMe/issues) on GitHub.
+If you encounter any problems with AuthMe or would like to suggest enhancements, please [open an issue](https://github.com/Xoro-1337/AuthMe/issues) on GitHub.
 
 ## License
 
-AuthMe is licensed under the [MIT License](https://github.com/your_username/AuthMe/blob/main/LICENSE).
+AuthMe is licensed under the [MIT License](https://github.com/Xoro-1337/AuthMe/blob/main/LICENSE).
 
 ## Acknowledgments
 

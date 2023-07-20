@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"database/sql"
-	_ "github.com/Xoro-1337/AuthMe/api/models"
+	"github.com/Xoro-1337/AuthMe/api/models"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"AuthMe/api/handlers"
-	"AuthMe/api/middleware"
-	"AuthMe/api/utils"
 	"database/sql"
+	"github.com/Xoro-1337/AuthMe/api/handlers"
+	"github.com/Xoro-1337/AuthMe/api/middleware"
+	"github.com/Xoro-1337/AuthMe/api/utils"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )

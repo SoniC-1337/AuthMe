@@ -20,7 +20,7 @@ Follow these steps to get AuthMe up and running in your project:
 
    - Clone the AuthMe repository to your local machine.
 
-      ```git clone https://github.com/your_username/AuthMe.git```
+      ```git clone https://github.com/Xoro-1337/AuthMe.git```
 
 2. **Server Setup**:
 

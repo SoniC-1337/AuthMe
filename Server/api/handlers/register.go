@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 
-	"github.com/Xoro-1337/AuthMe/api/models"
+	"github.com/Xoro-1337/AuthMe/server/api/models"
 )
 
 func RegisterHandler(db *sql.DB) gin.HandlerFunc {

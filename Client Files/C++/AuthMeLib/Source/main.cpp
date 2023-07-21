@@ -1,6 +1,6 @@
 // main.cpp : Defines the functions for the static library.
 
-#include "main.h"
+#include "main.hpp"
 
 // Login: Authenticate with the server in order to successfully login user.
 int AuthMe::Login()

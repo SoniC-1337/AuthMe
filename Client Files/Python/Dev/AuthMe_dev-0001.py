@@ -1,39 +1,42 @@
-import requests as r
+import hashlib
+import hmac
+import time
+
+import requests
 
 
 class AuthMe:
-    """Main AuthMe class. Create an instance of this class with the UID and URL/IP of the server to configure.
+    endpoint = ''
 
-    Args:
-        url (str): The URL/IP of the server to configure.
-        uid (str): The UID of the user to authenticate.
-    """
-    def __init__(self, url, uid):
-        self.url = url
-        self.uid = uid
+    def __init__(self, endpoint):
+        self.endpoint = endpoint  # URL/IP of the AuthMe server
 
-    def authenticate(self) -> bool:
-        """Passes the UID to the login endpoint and validates product access.
+    def init(self):
+        if self.sessionid != '':
+            return 'Already initialized'
 
-        Returns:
-            bool: True if the user is authenticated, False otherwise.
-        """
-
-        payload = {
-            'UID': self.uid,
+        post_data = {
+            'req': 'init',
         }
+
+    def __do_request(self, post_data):
         try:
-            if r.post(self.url, data=payload).status_code == 200:
-                return True
-        except Exception as e:
-            print(e)
-            return False
+            response = requests.post(
+                self.endpoint, data=post_data, timeout=10
+            )
 
+            key = self.secret if post_data["type"] == "init" else self.enckey
 
+            client_computed = hmac.new(key.encode('utf-8'), response.text.encode('utf-8'), hashlib.sha256).hexdigest()
 
+            signature = response.headers["signature"]
 
-# Authentication test
-"""
-test = AuthMe('http://localhost:8080/login', 'Xoro')
-print(test.authenticate())
-"""
+            if not hmac.compare_digest(client_computed, signature):
+                print("Signature checksum failed. Request was tampered with or session ended most likely.")
+                print("Response: " + response.text)
+                time.sleep(3)
+                exit(1)
+
+            return response.text
+        except requests.exceptions.Timeout:
+            print("Request timed out. Server is probably down/slow at the moment")

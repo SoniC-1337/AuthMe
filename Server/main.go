@@ -27,6 +27,7 @@ func main() {
 	router.Use(middleware.CORS())
 	// gin.SetMode(gin.ReleaseMode)
 
+	// API routes
 	router.POST("/login", handlers.Authenticate(db))
 	router.GET("/download", handlers.DownloadHandler)
 	router.POST("/register", handlers.RegisterHandler(db))
